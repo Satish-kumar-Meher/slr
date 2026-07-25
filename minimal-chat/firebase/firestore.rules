@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    match /chats/{chatId} {
+      match /messages/{messageId} {
+        allow read: if isAuthenticated();
+        
+        allow create: if isAuthenticated()
+                      && request.resource.data.senderId == request.auth.uid
+                      && request.resource.data.text is string
+                      && request.resource.data.text.trim().size() > 0;
+                      
+        allow update: if isAuthenticated()
+                      // Only receiver can update deliveredAt and seenAt
+                      && request.auth.uid == resource.data.receiverId
+                      // Cannot change sender, receiver, text, or createdAt
+                      && request.resource.data.senderId == resource.data.senderId
+                      && request.resource.data.receiverId == resource.data.receiverId
+                      && request.resource.data.text == resource.data.text
+                      && request.resource.data.createdAt == resource.data.createdAt;
+                      
+        allow delete: if isAuthenticated();
+      }
+    }
+  }
+}
