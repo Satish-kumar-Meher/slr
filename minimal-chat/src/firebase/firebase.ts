@@ -23,3 +23,9 @@ export const AUTHORIZED_UIDS = [
   import.meta.env.VITE_AUTHORIZED_UID_1,
   import.meta.env.VITE_AUTHORIZED_UID_2,
 ].filter(Boolean) as string[];
+
+export const SPOTIFY_REDIRECT_USER = {
+  uid: import.meta.env.VITE_AUTHORIZED_UID_3,
+  email: 'riyameher36@gmail.com',
+  url: 'https://open.spotify.com',
+};

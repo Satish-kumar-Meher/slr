@@ -1,12 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
+
+const SPOTIFY_REDIRECT_KEY = 'spotifyRedirectPending';
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const resetLoginState = () => {
+      setEmail('');
+      setPassword('');
+      setError(null);
+      setLoading(false);
+    };
+
+    if (sessionStorage.getItem(SPOTIFY_REDIRECT_KEY)) {
+      sessionStorage.removeItem(SPOTIFY_REDIRECT_KEY);
+      resetLoginState();
+    }
+
+    const handlePageShow = (event: any) => {
+      if (event.persisted && sessionStorage.getItem(SPOTIFY_REDIRECT_KEY)) {
+        sessionStorage.removeItem(SPOTIFY_REDIRECT_KEY);
+        resetLoginState();
+      }
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +50,7 @@ export const LoginPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-[100dvh] bg-gray-50 px-4">
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-        <h1 className="text-2xl font-bold text-center mb-8 text-gray-900">Chat</h1>
+        <h1 className="text-2xl font-bold text-center mb-8 text-gray-900">Welcome to Spotify</h1>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
